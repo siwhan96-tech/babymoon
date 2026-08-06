@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>발리 여행</title>
+<style>
+  :root{
+    --bg:#F3EFE8; --card:#FFFFFF; --ink:#27201A; --ink-soft:#7A6F62;
+    --accent:#D97B2E; --accent-soft:#F8E6D2; --line:#E6DECF;
+    --teal:#2F8F7E; --warn-soft:#FBE3DF; --green-soft:#DFF0E7;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; }
+  body{ background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased; padding-bottom:56px; }
+  .wrap{ max-width:480px; margin:0 auto; padding:18px 16px 0; }
+  .serif{ font-family:Georgia,"Iowan Old Style","Times New Roman",serif; }
+  .mono{ font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; }
+
+  /* boarding pass */
+  .pass{ background:var(--card); border-radius:18px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(39,32,26,.04),0 8px 24px rgba(39,32,26,.08); margin-bottom:14px; }
+  .pass-top{ padding:22px 20px 18px; }
+  .eyebrow{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); font-weight:700; margin:0 0 6px; }
+  .pass-top h1{ margin:0; font-size:34px; line-height:1.05; font-weight:600; }
+  .pass-sub{ color:var(--ink-soft); font-size:14px; margin-top:4px; }
+  .pass-meta{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:18px; }
+  .pass-dates .dim{ color:var(--ink-soft); font-size:12px; display:block; letter-spacing:.04em; }
+  .dday{ background:var(--accent); color:#fff; font-weight:700; font-size:13px; padding:6px 12px; border-radius:999px; }
+  .perf{ position:relative; height:0; border-top:2px dashed var(--line); }
+  .perf::before,.perf::after{ content:''; position:absolute; top:-9px; width:18px; height:18px; background:var(--bg); border-radius:50%; }
+  .perf::before{ left:-9px; } .perf::after{ right:-9px; }
+  .pass-bottom{ padding:14px 20px 18px; display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); }
+  .pass-bottom b{ color:var(--ink); font-weight:600; }
+
+  /* stubs */
+  .stub-row{ display:flex; gap:10px; margin-bottom:18px; }
+  .stub{ flex:1; background:var(--card); border-radius:14px; padding:13px 14px; border:1px solid var(--line); box-shadow:0 1px 2px rgba(39,32,26,.04); }
+  .stub-label{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; display:flex; align-items:center; gap:5px; margin-bottom:6px; }
+  .stub-title{ font-size:13px; font-weight:600; line-height:1.4; }
+  .stub-note{ font-size:11.5px; color:var(--ink-soft); margin-top:3px; line-height:1.4; }
+
+  /* sticky day nav */
+  .day-nav-wrap{ position:sticky; top:0; z-index:10; background:var(--bg); padding:8px 0 6px; margin:0 -16px; padding-left:16px; padding-right:16px; }
+  .day-nav{ display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .day-nav::-webkit-scrollbar{ display:none; }
+  .day-pill{ flex:0 0 auto; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:7px 12px; text-align:center;
+    cursor:pointer; user-select:none; transition:background .15s,border-color .15s; }
+  .day-pill .d{ font-size:11px; font-weight:700; letter-spacing:.05em; color:var(--ink); }
+  .day-pill .dt{ font-size:10.5px; color:var(--ink-soft); margin-top:1px; }
+  .day-pill.active{ background:var(--ink); border-color:var(--ink); }
+  .day-pill.active .d, .day-pill.active .dt{ color:#fff; }
+
+  /* day panels */
+  section.day{ background:var(--card); border-radius:16px; padding:16px 18px 18px; margin-bottom:12px; box-shadow:0 1px 2px rgba(39,32,26,.04); display:none; }
+  section.day.active{ display:block; }
+  .day-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px; }
+  .day-head h2{ font-size:18px; margin:0; font-weight:600; }
+  .day-head .wd{ font-size:12.5px; color:var(--ink-soft); }
+  .hotel-badge{ font-size:11px; font-weight:700; color:var(--teal); background:#e8f5f2; padding:3px 9px; border-radius:8px; margin-bottom:12px; display:inline-block; }
+  .item{ display:flex; gap:12px; padding:9px 0; border-top:1px solid var(--line); }
+  .item:first-child{ border-top:none; }
+  .item .time{ flex:0 0 46px; font-size:11.5px; color:var(--ink-soft); padding-top:2px; }
+  .item .icon{ flex:0 0 20px; font-size:15px; }
+  .item .body b{ font-size:14px; font-weight:600; display:block; }
+  .item .body span{ font-size:12.5px; color:var(--ink-soft); }
+  .item.highlight{ background:var(--accent-soft); margin:4px -10px; padding:10px; border-radius:10px; border-top:none; }
+  .item.highlight .body b{ color:#7a4c1e; }
+  .item.warn{ background:var(--warn-soft); margin:4px -10px; padding:10px; border-radius:10px; border-top:none; }
+  .item.warn .body span{ color:#8a3226; }
+
+  /* notices (moved below day section) */
+  .notice-list{ margin-top:4px; }
+  .tip{ background:var(--green-soft); border-radius:12px; padding:11px 14px; font-size:12px; color:#1e5c38; line-height:1.6; margin-bottom:10px; }
+  .tip b{ display:block; margin-bottom:3px; font-size:12.5px; }
+  .warn-box{ background:var(--warn-soft); border-radius:12px; padding:11px 14px; font-size:12px; color:#8a3226; line-height:1.55; margin-bottom:10px; }
+  .warn-box b{ display:block; margin-bottom:2px; font-size:12.5px; }
+
+  /* food */
+  .sec-title{ display:flex; align-items:baseline; gap:8px; margin:26px 2px 10px; }
+  .sec-title h2{ font-size:17px; margin:0; font-weight:700; }
+  .sec-title .cnt{ font-size:12px; color:var(--ink-soft); }
+  .cat-label{ font-size:12px; font-weight:700; color:var(--teal); margin:16px 2px 8px; display:flex; align-items:center; gap:6px; }
+  .cat-label:first-of-type{ margin-top:4px; }
+  .food-card{ background:var(--card); border-radius:14px; padding:13px 15px; margin-bottom:8px; box-shadow:0 1px 2px rgba(39,32,26,.04);
+    display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .food-card .fc-name{ font-size:14.5px; font-weight:600; }
+  .food-card .fc-note{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.4; }
+  .food-card .fc-area{ display:inline-block; font-size:11px; color:var(--accent); font-weight:700; margin-top:5px; background:var(--accent-soft); padding:2px 7px; border-radius:6px; }
+  .map-link{ flex:0 0 auto; width:34px; height:34px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:15px; }
+
+  footer{ text-align:center; color:var(--ink-soft); font-size:11.5px; margin-top:30px; padding:0 30px; line-height:1.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- boarding pass -->
+  <div class="pass">
+    <div class="pass-top">
+      <p class="eyebrow">TRIP · INDONESIA</p>
+      <h1 class="serif">발리</h1>
+      <p class="pass-sub">Bali, Indonesia</p>
+      <div class="pass-meta">
+        <div class="pass-dates mono"><span class="dim">DATES</span><span>8.21 — 8.28</span></div>
+        <div class="dday" id="ddayBadge">D-46</div>
+      </div>
+    </div>
+    <div class="perf"></div>
+    <div class="pass-bottom mono">
+      <span>NIGHTS <b>7</b></span><span>DAYS <b>8</b></span><span>PAX <b>2</b></span>
+    </div>
+  </div>
+
+  <!-- stubs -->
+  <div class="stub-row">
+    <div class="stub">
+      <div class="stub-label">✈️ 항공</div>
+      <div class="stub-title">8/21 18:00 ICN → 23:50 DPS</div>
+      <div class="stub-note">8/28 01:10 DPS → 09:25 ICN</div>
+    </div>
+    <div class="stub">
+      <div class="stub-label">🏨 숙소</div>
+      <div class="stub-title">Bali Beach Hotel → 아야나 세가라</div>
+      <div class="stub-note">8/21–24 사누르 · 8/24–27 짐바란</div>
+    </div>
+  </div>
+
+  <!-- sticky day nav -->
+  <div class="day-nav-wrap">
+    <div class="day-nav" id="dayNav">
+      <div class="day-pill active" data-day="0"><div class="d">D1</div><div class="dt mono">8.21 금</div></div>
+      <div class="day-pill" data-day="1"><div class="d">D2</div><div class="dt mono">8.22 토</div></div>
+      <div class="day-pill" data-day="2"><div class="d">D3</div><div class="dt mono">8.23 일</div></div>
+      <div class="day-pill" data-day="3"><div class="d">D4</div><div class="dt mono">8.24 월</div></div>
+      <div class="day-pill" data-day="4"><div class="d">D5</div><div class="dt mono">8.25 화</div></div>
+      <div class="day-pill" data-day="5"><div class="d">D6</div><div class="dt mono">8.26 수</div></div>
+      <div class="day-pill" data-day="6"><div class="d">D7</div><div class="dt mono">8.27 목</div></div>
+      <div class="day-pill" data-day="7"><div class="d">D8</div><div class="dt mono">8.28 금</div></div>
+    </div>
+  </div>
+
+  <!-- DAY 1 -->
+  <section class="day active" id="day0">
+    <div class="day-head"><h2>DAY 1 · 출발</h2><span class="wd mono">8.21 (금)</span></div>
+    <div class="hotel-badge">🏨 Bali Beach Hotel (사누르)</div>
+    <div class="item"><div class="time mono">18:00</div><div class="icon">🛫</div><div class="body"><b>ICN 출국</b></div></div>
+    <div class="item"><div class="time mono">23:50</div><div class="icon">🛬</div><div class="body"><b>DPS 도착</b><span>현지 시각 — 한국보다 1시간 느림</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🚕</div><div class="body"><b>Bali Beach Hotel 체크인</b><span>공항에서 차로 약 35~45분, 늦은 도착이니 바로 휴식</span></div></div>
+  </section>
+
+  <!-- DAY 2 -->
+  <section class="day" id="day1">
+    <div class="day-head"><h2>DAY 2 · 결혼식</h2><span class="wd mono">8.22 (토)</span></div>
+    <div class="hotel-badge">🏨 Bali Beach Hotel (사누르)</div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">😴</div><div class="body"><b>늦잠 · 호텔 조식</b><span>장거리 이동 다음날, 컨디션 회복 최우선</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏊</div><div class="body"><b>호텔 수영장 or 스파</b><span>비치사이드 풀 4개 · 자쿠지 · 실내 스파</span></div></div>
+    <div class="item"><div class="time mono">점심</div><div class="icon">🍽️</div><div class="body"><b>호텔 내 레스토랑</b><span>준비하고 여유있게</span></div></div>
+    <div class="item highlight"><div class="time mono">15:30</div><div class="icon">🚌</div><div class="body"><b>호텔 → 베뉴 셔틀 출발</b><span>Bali Beach Hotel 사누르 출발 · 시간 맞춰 탑승</span></div></div>
+    <div class="item highlight"><div class="time mono">16:30</div><div class="icon">💍</div><div class="body"><b>결혼식 — Villa Puri Nirwana</b><span>식 시작 16:30 (현지 정보 기준) · 4시반 시작</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏛️</div><div class="body"><b>베뉴 1층 오픈 공간</b><span>웨딩 진행 중 내부 1층 휴게 공간 이용 가능 — 현정 형수님 쉬실 때 활용</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🛏️</div><div class="body"><b>신랑신부 객실 · 추가 객실</b><span>형수님 컨디션 따라 언제든 객실 이용 가능 — 불편한 점 있으면 바로 말하기</span></div></div>
+    <div class="item highlight"><div class="time mono">저녁</div><div class="icon">🪑</div><div class="body"><b>디너 — 지정 좌석</b><span>디너 시트 자리 사전 지정됨</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🎉</div><div class="body"><b>애프터파티</b><span>베뉴 → 애프터파티 → 각 호텔 셔틀 운행 예정</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🚌</div><div class="body"><b>셔틀로 호텔 복귀</b></div></div>
+  </section>
+
+  <!-- DAY 3 -->
+  <section class="day" id="day2">
+    <div class="day-head"><h2>DAY 3 · 자유일정</h2><span class="wd mono">8.23 (일)</span></div>
+    <div class="hotel-badge">🏨 Bali Beach Hotel (사누르)</div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">☕</div><div class="body"><b>조식 같이</b><span>둘이 함께</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🚗</div><div class="body"><b>시환 · 동혁 우붓 한나절 투어</b><span>우붓 자유일정 — 오전 출발, 오후 복귀 예정</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🛌</div><div class="body"><b>현정 리조트 휴식</b><span>수영장 · 스파 · 객실 — 편한 하루</span></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🍽️</div><div class="body"><b>저녁 다같이</b><span>복귀 후 합류</span></div></div>
+  </section>
+
+  <!-- DAY 4 -->
+  <section class="day" id="day3">
+    <div class="day-head"><h2>DAY 4 · 아야나 이동</h2><span class="wd mono">8.24 (월)</span></div>
+    <div class="hotel-badge">🏨 사누르 → 아야나 세가라 (짐바란)</div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">🧳</div><div class="body"><b>조식 후 체크아웃</b></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🚗</div><div class="body"><b>짐바란 아야나 세가라 이동</b><span>차로 약 40~50분 — 이른 출발 권장</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏨</div><div class="body"><b>아야나 세가라 체크인</b><span>90헥타르 대형 리조트 · 내부 셔틀 무료 운행</span></div></div>
+    <div class="item"><div class="time mono">오후</div><div class="icon">🏊</div><div class="body"><b>리조트 수영장 탐방</b><span>수영장만 14개 — 루나 루프탑 풀, 멀티 티어 풀 등</span></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🦐</div><div class="body"><b>짐바란 해변 해산물 디너</b><span>모래사장 테이블에서 일몰 보며</span></div></div>
+  </section>
+
+  <!-- DAY 5 -->
+  <section class="day" id="day4">
+    <div class="day-head"><h2>DAY 5 · 리조트 풀 데이</h2><span class="wd mono">8.25 (화)</span></div>
+    <div class="hotel-badge">🏨 아야나 세가라 (짐바란)</div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">🍳</div><div class="body"><b>리조트 조식</b><span>30개 다이닝 — 국제식·인도네시아식·일식 등</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">💆</div><div class="body"><b>아야나 스파</b><span>임산부 트리트먼트 사전 예약 시 가능 여부 확인</span></div></div>
+    <div class="item"><div class="time mono">12-15시</div><div class="icon">🌡️</div><div class="body"><b>실내 · 객실 휴식</b><span>낮 최고기온 구간</span></div></div>
+    <div class="item"><div class="time mono">오후</div><div class="icon">🌅</div><div class="body"><b>루나 루프탑 바 & 풀</b><span>리조트 전체 조망 · 선베드에서 여유</span></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🍽️</div><div class="body"><b>리조트 내 레스토랑</b></div></div>
+  </section>
+
+  <!-- DAY 6 -->
+  <section class="day" id="day5">
+    <div class="day-head"><h2>DAY 6 · SAKA 뮤지엄 & 쇼핑</h2><span class="wd mono">8.26 (수)</span></div>
+    <div class="hotel-badge">🏨 아야나 세가라 (짐바란)</div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">🏛️</div><div class="body"><b>SAKA 뮤지엄</b><span>리조트 내 도보 390m · 발리 문화·예술 전시 · 냉방 실내</span></div></div>
+    <div class="item"><div class="time mono">점심</div><div class="icon">🍽️</div><div class="body"><b>리조트 내 점심</b></div></div>
+    <div class="item"><div class="time mono">오후</div><div class="icon">🛍️</div><div class="body"><b>사마스타 라이프스타일 빌리지 (선택)</b><span>리조트에서 차로 약 10분 · 실내 쇼핑</span></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🌇</div><div class="body"><b>선셋 뷰 디너</b><span>리조트 셔틀 이용</span></div></div>
+  </section>
+
+  <!-- DAY 7 -->
+  <section class="day" id="day6">
+    <div class="day-head"><h2>DAY 7 · 마지막 날</h2><span class="wd mono">8.27 (목)</span></div>
+    <div class="hotel-badge">🏨 아야나 세가라 체크아웃</div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">☕</div><div class="body"><b>마지막 조식 · 짐 정리</b></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏊</div><div class="body"><b>체크아웃 전 마지막 수영</b><span>쿠부 비치 or 리조트 풀</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🧳</div><div class="body"><b>체크아웃</b></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🍽️</div><div class="body"><b>공항 근처에서 마지막 저녁</b></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🌙</div><div class="body"><b>레이트 체크아웃 · 공항 이동 준비</b><span>새벽 01:10 출발 — 저녁에 여유있게 공항으로</span></div></div>
+  </section>
+
+  <!-- DAY 8 -->
+  <section class="day" id="day7">
+    <div class="day-head"><h2>DAY 8 · 귀국</h2><span class="wd mono">8.28 (금)</span></div>
+    <div class="item"><div class="time mono">심야</div><div class="icon">🚕</div><div class="body"><b>DPS 공항 이동</b><span>새벽 비행 — 여유있게 출발</span></div></div>
+    <div class="item"><div class="time mono">01:10</div><div class="icon">🛫</div><div class="body"><b>DPS 출국</b></div></div>
+    <div class="item"><div class="time mono">09:25</div><div class="icon">🛬</div><div class="body"><b>ICN 도착</b></div></div>
+  </section>
+
+  <!-- notices moved below day panels -->
+  <div class="notice-list">
+    <div class="tip">
+      <b>🤰 임산부(22주차) 동반 — 실내 중심 일정</b>
+      이동 최소화·실내 쾌적 공간 위주. 스파·마사지는 임산부 가능 여부 사전 확인 필수. 낮 12~15시 최고기온 구간엔 실내 휴식 권장. 항공사 임산부 탑승 규정·여행자보험도 출발 전 체크해두세요.
+    </div>
+  </div>
+
+  <!-- food recs -->
+  <div class="sec-title"><h2>🍽️ 맛집 · 카페</h2><span class="cnt">15곳</span></div>
+
+  <!-- SANUR -->
+  <div class="cat-label">📍 사누르 — D1~D3 (Bali Beach Hotel 주변)</div>
+
+  <div class="food-card">
+    <div><div class="fc-name">Warung Mak Beng</div><div class="fc-note">사누르 터줏대감 현지 와룽. 생선구이 정식 하나만 팔고, 항상 줄 서는 맛집.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Warung+Mak+Beng+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">COSTA - Beach Restaurant Sanur</div><div class="fc-note">사누르 해변 바로 앞 레스토랑. 시원한 오션뷰와 함께 식사 가능.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=COSTA+Beach+Restaurant+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Lava Gastrobar & Grill</div><div class="fc-note">화산석 그릴 스테이크. 사누르에서 분위기·맛 둘 다 잡은 저녁 맛집.</div><span class="fc-area">사누르 · 저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Lava+Gastrobar+Grill+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Kaluma Casual Dining & Bar</div><div class="fc-note">사누르 캐주얼 다이닝. 분위기 편하고 메뉴 다양해서 저녁 자유롭게 고르기 좋음.</div><span class="fc-area">사누르 · 저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kaluma+Casual+Dining+Bar+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Fisherman's Club</div><div class="fc-note">사누르 해변가 클럽 레스토랑. 해산물 중심, 선셋 뷰 분위기 좋음.</div><span class="fc-area">사누르 · 저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Fishermans+Club+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <!-- JIMBARAN -->
+  <div class="cat-label">📍 짐바란 — D4~D7 (아야나 세가라 주변)</div>
+
+  <div class="food-card">
+    <div><div class="fc-name">Menega Cafe</div><div class="fc-note">짐바란 베이 오션뷰 해산물. 발리니즈 전통 방식 조리, 가성비 좋고 재방문율 높음.</div><span class="fc-area">짐바란 · 저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Menega+Cafe+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">쿠카 레스토랑 (Cuca)</div><div class="fc-note">타파스 스타일 창작 요리, 짐바란 파인다이닝 대표. 셰프 테이스팅 메뉴·칵테일 유명. ★4.7</div><span class="fc-area">짐바란 · 저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Cuca+Restaurant+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Locca Sea House</div><div class="fc-note">짐바란 오션뷰 레스토랑. ★4.7 고평점, 분위기 좋은 저녁 코스로 추천.</div><span class="fc-area">짐바란 · 저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Locca+Sea+House+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">La Pasion</div><div class="fc-note">★4.7 고평점 레스토랑. 가격대 합리적(7.5~22.5만 루피아), 분위기 좋음.</div><span class="fc-area">짐바란 · 점심·저녁</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=La+Pasion+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Gourmet Garage</div><div class="fc-note">짐바란 고급 식재료 마켓 겸 레스토랑. 델리·간편식·카페도 되어서 가볍게 들르기 좋음.</div><span class="fc-area">짐바란 · 점심</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Gourmet+Garage+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Kubu Beach Club</div><div class="fc-note">아야나 리조트 내 쿠부 비치 클럽. 리조트 셔틀로 이동 가능, 이동 없이 편하게.</div><span class="fc-area">짐바란 · 리조트 내</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kubu+Beach+Club+Ayana+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">사이드워크 짐바란</div><div class="fc-note">아야나 근처 쇼핑몰. 안에 푸드코트·레스토랑 다수. 더울 때 실내에서 식사하기 좋음.</div><span class="fc-area">짐바란 · 쇼핑몰 식사</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Sidewalk+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <!-- UBUD (D3 tour) -->
+  <div class="cat-label">📍 우붓 — D3 (동혁이랑 투어 시)</div>
+  <div class="food-card">
+    <div><div class="fc-name">기안야르 야시장</div><div class="fc-note">★4.4 우붓 인근 현지 야시장. 저렴한 발리 길거리 음식 총집합. 저녁 투어 일정에 넣기 좋음.</div><span class="fc-area">우붓 · 야시장</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Gianyar+Night+Market+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">티스카페+수영장</div><div class="fc-note">★4.8 우붓 인근 뷰 카페+수영장 콤보. 논밭 뷰에서 수영·카페 동시에 즐길 수 있는 유명 스팟.</div><span class="fc-area">우붓 · 카페</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tis+Cafe+Ubud+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <!-- SIGHTSEEING -->
+  <div class="sec-title"><h2>🗺️ 투어 후보 스팟</h2><span class="cnt">형님 + 동혁 둘이</span></div>
+
+  <div class="cat-label">💧 폭포</div>
+  <div class="food-card">
+    <div><div class="fc-name">Tegenungan Waterfall</div><div class="fc-note">★4.4 (38,064) 우붓 근처 가장 접근 편한 대형 폭포. 주차장에서 가까워 이동 부담 없음.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tegenungan+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Kanto Lampo Waterfall</div><div class="fc-note">★4.3 (7,398) 독특한 암반 지형 위로 흐르는 폭포. 사진 명소로 유명, 접근 쉬운 편.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kanto+Lampo+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Tibumana Waterfall</div><div class="fc-note">★4.6 (3,028) 한적하고 깨끗한 폭포. 관광객이 적어 여유롭게 즐길 수 있음.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tibumana+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Ulu Petanu Waterfall</div><div class="fc-note">★4.6 (1,764) 숨겨진 폭포. 트레킹 코스 포함이라 체력 있을 때 도전.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Ulu+Petanu+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <div class="cat-label">🛕 사원 & 문화</div>
+  <div class="food-card">
+    <div><div class="fc-name">울루와뚜 사원</div><div class="fc-note">★4.6 (52,696) 절벽 위 힌두 사원. 일몰 시간대 케짝 댄스 공연이 유명. 저녁에 맞춰 가기 좋음.</div><span class="fc-area">울루와뚜</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Uluwatu+Temple+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Pura Tirta Empul</div><div class="fc-note">힌두 성수 사원. 신성한 샘물 목욕 의식 체험 가능. 우붓 근교.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Pura+Tirta+Empul+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Penataran Agung Lempuyang Temple</div><div class="fc-note">★4.0 (12,614) 하늘의 문(Gates of Heaven) 포토스팟으로 유명. 이른 아침 방문 권장.</div><span class="fc-area">카랑아슴</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Lempuyang+Temple+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Goa Gajah</div><div class="fc-note">코끼리 동굴 사원. 우붓 가는 길목에 있어 다른 스팟과 묶어서 방문하기 좋음.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Goa+Gajah+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <div class="cat-label">🌾 자연 & 뷰포인트</div>
+  <div class="food-card">
+    <div><div class="fc-name">뜨갈랑 계단식 논</div><div class="fc-note">발리 대표 포토스팟. 이른 오전 방문 시 사람 적고 빛도 좋음. 카페 많아 쉬어가기 좋음.</div><span class="fc-area">우붓</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tegalalang+Rice+Terrace+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">짬뿌한 릿지 워크</div><div class="fc-note">우붓 시내에서 도보 가능한 트레킹 코스. 논밭·정글 뷰. 이른 아침이 덜 더움.</div><span class="fc-area">우붓</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Campuhan+Ridge+Walk+Ubud+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">BALI SWING</div><div class="fc-note">★4.8 (2,206) 정글 뷰 그네 포토스팟. 우붓 근교, 뷰 좋음.</div><span class="fc-area">우붓 근교</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Bali+Swing+Ubud" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">타나롯</div><div class="fc-note">바다 위 힌두 사원. 일몰 명소. 짐바란에서 차로 약 1시간, 해 질 녘에 맞춰 가면 최고.</div><span class="fc-area">타바난</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tanah+Lot+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <!-- HOSPITAL -->
+  <div class="sec-title"><h2>🏥 비상 연락 · 병원</h2></div>
+  <div class="food-card">
+    <div><div class="fc-name">RSIA Puri Bunda Denpasar</div><div class="fc-note">★4.8 산부인과 전문 병원. 임산부 관련 응급상황 시 1순위. 덴파사르 위치.</div><span class="fc-area">덴파사르</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=RSIA+Puri+Bunda+Denpasar+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+  <div class="food-card">
+    <div><div class="fc-name">Kasih Ibu General Hospital</div><div class="fc-note">★4.5 덴파사르 종합병원. 24시간 응급 가능. 사누르·짐바란 모두에서 접근 가능.</div><span class="fc-area">덴파사르</span></div>
+    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kasih+Ibu+General+Hospital+Denpasar+Bali" target="_blank" rel="noopener">📍</a>
+  </div>
+
+  <footer>이 페이지는 와이프와 공유하는 여행 메모예요. 일정은 초안이라 바뀔 수 있어요.</footer>
+</div>
+
+<script>
+  // D-day
+  try{
+    var s=new Date(2026,7,21),e=new Date(2026,7,28),t=new Date();
+    t.setHours(0,0,0,0);
+    var diff=Math.round((s-t)/86400000),b=document.getElementById('ddayBadge');
+    if(t<s) b.textContent='D-'+diff;
+    else if(t<=e) b.textContent='여행 중 ✈︎';
+    else b.textContent='다녀왔어요';
+  }catch(_){}
+
+  // Tab switching — no scroll jump
+  document.getElementById('dayNav').addEventListener('click', function(e){
+    var pill = e.target.closest('[data-day]');
+    if(!pill) return;
+    var idx = pill.dataset.day;
+
+    // update pills
+    document.querySelectorAll('.day-pill').forEach(function(p){ p.classList.remove('active'); });
+    pill.classList.add('active');
+
+    // update panels
+    document.querySelectorAll('section.day').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('day'+idx).classList.add('active');
+
+    // scroll selected pill into view within nav (horizontal), not the page
+    pill.scrollIntoView({block:'nearest', inline:'center'});
+  });
+</script>
+</body>
+</html>
