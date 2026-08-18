@@ -39,15 +39,27 @@
   <!-- weather widget styles -->
   .wx-card{ background:var(--card); border-radius:16px; padding:14px 16px; margin-bottom:14px;
     box-shadow:0 1px 2px rgba(39,32,26,.04); }
-  .wx-loc{ font-size:11px; font-weight:700; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
-  .wx-days{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
-  .wx-days::-webkit-scrollbar{ display:none; }
-  .wx-day{ flex:0 0 auto; text-align:center; background:var(--bg); border-radius:10px; padding:8px 10px; min-width:52px; }
-  .wx-day.today{ background:var(--accent-soft); }
-  .wx-day .wx-d{ font-size:10px; color:var(--ink-soft); font-weight:600; }
-  .wx-day .wx-ico{ font-size:20px; margin:4px 0 2px; line-height:1; }
-  .wx-day .wx-t{ font-size:12px; font-weight:700; color:var(--ink); }
-  .wx-day .wx-tl{ font-size:10.5px; color:var(--ink-soft); }
+  .wx-loc{ font-size:11px; font-weight:700; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; }
+  .wx-date-label{ font-size:12px; color:var(--ink-soft); margin:2px 0 10px; }
+  .wx-sun{ display:flex; gap:14px; font-size:11.5px; color:var(--ink-soft); margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--line); }
+  .wx-sun span b{ color:var(--ink); font-weight:600; }
+  .wx-hours{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .wx-hours::-webkit-scrollbar{ display:none; }
+  .wx-hour{ flex:0 0 auto; text-align:center; background:var(--bg); border-radius:10px; padding:8px 9px; min-width:50px; }
+  .wx-hour.now{ background:var(--accent-soft); }
+  .wx-hour .wx-h{ font-size:10.5px; color:var(--ink-soft); font-weight:600; }
+  .wx-hour .wx-ico{ font-size:18px; margin:4px 0 2px; line-height:1; }
+  .wx-hour .wx-t{ font-size:12px; font-weight:700; color:var(--ink); }
+  .wx-hour .wx-rain{ font-size:10px; color:#3E8E83; }
+  .wx-day-tabs{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; margin-bottom:10px; }
+  .wx-day-tabs::-webkit-scrollbar{ display:none; }
+  .wx-day-tab{ flex:0 0 auto; font-size:11px; font-weight:700; padding:5px 10px; border-radius:8px;
+    background:var(--bg); color:var(--ink-soft); cursor:pointer; border:none; white-space:nowrap; }
+  .wx-day-tab.active{ background:var(--ink); color:#fff; }
+  .wx-loading{ font-size:12px; color:var(--ink-soft); padding:8px 0; }
+
+
+
   .wx-sun{ display:flex; gap:12px; margin-top:10px; font-size:11.5px; color:var(--ink-soft); }
   .wx-sun span b{ color:var(--ink); font-weight:600; }
   .wx-loading{ font-size:12px; color:var(--ink-soft); padding:8px 0; }
@@ -147,9 +159,13 @@
   <!-- weather card -->
   <div class="wx-card" id="wxCard">
     <div class="wx-loc" id="wxLoc">날씨 불러오는 중…</div>
+    <div class="wx-date-label" id="wxDateLabel"></div>
     <div class="wx-loading" id="wxLoading">잠시만요 ☁️</div>
-    <div class="wx-days" id="wxDays" style="display:none"></div>
-    <div class="wx-sun" id="wxSun" style="display:none"></div>
+    <div id="wxBody" style="display:none">
+      <div class="wx-sun" id="wxSun"></div>
+      <div class="wx-day-tabs" id="wxDayTabs"></div>
+      <div class="wx-hours" id="wxHours"></div>
+    </div>
   </div>
 
   <!-- sticky day nav -->
@@ -388,12 +404,11 @@
     else b.textContent='다녀왔어요';
   }catch(_){}
 
-  // ── 날씨 ──
+  // ── 날씨 (시간대별) ──
   var LOCS = {
-    sanur:    { name:'사누르 날씨', lat: -8.6877,  lon: 115.2613, days:[0,1,2,3] },   // D1~D4
-    jimbaran: { name:'짐바란 날씨', lat: -8.7832,  lon: 115.1602, days:[3,4,5,6,7] }  // D4~D8
+    sanur:    { name:'🌤 사누르 날씨', lat:-8.6877,  lon:115.2613, days:[0,1,2,3] },
+    jimbaran: { name:'🌤 짐바란 날씨', lat:-8.7832,  lon:115.1602, days:[3,4,5,6,7] }
   };
-
   var WX_CODE = {
     0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
     45:'🌫️',48:'🌫️',
@@ -402,110 +417,149 @@
     80:'🌦️',81:'🌧️',82:'🌧️',
     95:'⛈️',96:'⛈️',99:'⛈️'
   };
+  var DAYS_KO=['일','월','화','수','목','금','토'];
+  var TRIP_DATES=['8/21','8/22','8/23','8/24','8/25','8/26','8/27','8/28'];
+  var wxCache={};
+  var currentLoc='sanur';
+  var currentWxDay=0;
 
-  var DAYS_KO = ['일','월','화','수','목','금','토'];
-  var TRIP_DATES = ['8/21','8/22','8/23','8/24','8/25','8/26','8/27','8/28'];
+  function pad(n){return n<10?'0'+n:''+n;}
+  function fmtTime(iso){if(!iso)return'--:--';var d=new Date(iso);return pad(d.getHours())+':'+pad(d.getMinutes());}
 
-  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+  function renderHours(data, tripDayIdx){
+    var loc=LOCS[currentLoc];
+    var tripStart=new Date(2026,7,21);
+    var targetDate=new Date(tripStart); targetDate.setDate(targetDate.getDate()+tripDayIdx);
+    var yyyy=targetDate.getFullYear();
+    var mm=pad(targetDate.getMonth()+1);
+    var dd=pad(targetDate.getDate());
+    var isoDate=yyyy+'-'+mm+'-'+dd;
 
-  function fmtTime(iso){
-    if(!iso) return '--:--';
-    var d = new Date(iso);
-    return pad(d.getHours())+':'+pad(d.getMinutes());
+    // find daily index for sunrise/sunset
+    var dailyIdx=data.daily.time.indexOf(isoDate);
+    var sunEl=document.getElementById('wxSun');
+    if(dailyIdx>=0){
+      sunEl.innerHTML='<span>🌅 일출 <b>'+fmtTime(data.daily.sunrise[dailyIdx])+'</b></span>'
+        +'<span>🌇 일몰 <b>'+fmtTime(data.daily.sunset[dailyIdx])+'</b></span>'
+        +'<span style="font-size:10px;margin-left:auto;color:var(--ink-soft)">현지시각 WITA</span>';
+    }
+
+    // hourly for that date
+    var hourly=data.hourly;
+    var container=document.getElementById('wxHours');
+    container.innerHTML='';
+    var nowH=new Date().getHours();
+    var isToday=isoDate===(new Date().getFullYear()+'-'+pad(new Date().getMonth()+1)+'-'+pad(new Date().getDate()));
+
+    for(var h=0;h<24;h+=3){
+      var isoHour=isoDate+'T'+pad(h)+':00';
+      var hIdx=hourly.time.indexOf(isoHour);
+      if(hIdx<0) continue;
+      var code=hourly.weathercode[hIdx];
+      var temp=Math.round(hourly.temperature_2m[hIdx]);
+      var rain=hourly.precipitation_probability[hIdx];
+      var ico=WX_CODE[code]||'🌡️';
+      var el=document.createElement('div');
+      el.className='wx-hour'+(isToday&&h===Math.floor(nowH/3)*3?' now':'');
+      el.innerHTML='<div class="wx-h">'+pad(h)+'시</div>'
+        +'<div class="wx-ico">'+ico+'</div>'
+        +'<div class="wx-t">'+temp+'°</div>'
+        +'<div class="wx-rain">💧'+rain+'%</div>';
+      container.appendChild(el);
+    }
+
+    // date label
+    document.getElementById('wxDateLabel').textContent=
+      TRIP_DATES[tripDayIdx]+'('+DAYS_KO[targetDate.getDay()]+') · D'+(tripDayIdx+1);
+  }
+
+  function renderDayTabs(data){
+    var loc=LOCS[currentLoc];
+    var tabEl=document.getElementById('wxDayTabs');
+    tabEl.innerHTML='';
+    loc.days.forEach(function(di,i){
+      var tripStart=new Date(2026,7,21);
+      var d=new Date(tripStart); d.setDate(d.getDate()+di);
+      var btn=document.createElement('button');
+      btn.className='wx-day-tab'+(i===0?' active':'');
+      btn.textContent=TRIP_DATES[di]+'('+DAYS_KO[d.getDay()]+')';
+      btn.onclick=function(){
+        document.querySelectorAll('.wx-day-tab').forEach(function(b){b.classList.remove('active');});
+        btn.classList.add('active');
+        currentWxDay=di;
+        renderHours(wxCache[currentLoc],di);
+      };
+      tabEl.appendChild(btn);
+    });
+    currentWxDay=loc.days[0];
   }
 
   function renderWeather(locKey){
-    var loc = LOCS[locKey];
-    document.getElementById('wxLoc').textContent = loc.name;
-    var url = 'https://api.open-meteo.com/v1/forecast'
-      + '?latitude='+loc.lat+'&longitude='+loc.lon
-      + '&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset'
-      + '&timezone=Asia%2FSingapore&forecast_days=16';
+    var loc=LOCS[locKey];
+    document.getElementById('wxLoc').textContent=loc.name;
+    document.getElementById('wxDateLabel').textContent='';
 
-    fetch(url).then(function(r){ return r.json(); }).then(function(data){
-      var daily = data.daily;
-      var container = document.getElementById('wxDays');
-      var sunEl = document.getElementById('wxSun');
-      container.innerHTML = '';
+    if(wxCache[locKey]){
+      renderDayTabs(wxCache[locKey]);
+      renderHours(wxCache[locKey],LOCS[locKey].days[0]);
+      document.getElementById('wxLoading').style.display='none';
+      document.getElementById('wxBody').style.display='';
+      return;
+    }
 
-      // find trip days in API response
-      var apiDates = daily.time; // ["2026-08-21", ...]
-      var tripStart = new Date(2026,7,21);
+    var url='https://api.open-meteo.com/v1/forecast'
+      +'?latitude='+loc.lat+'&longitude='+loc.lon
+      +'&hourly=temperature_2m,weathercode,precipitation_probability'
+      +'&daily=sunrise,sunset'
+      +'&timezone=Asia%2FSingapore&forecast_days=16';
 
-      loc.days.forEach(function(di){
-        var tripDate = new Date(tripStart); tripDate.setDate(tripDate.getDate()+di);
-        var yyyy = tripDate.getFullYear();
-        var mm = pad(tripDate.getMonth()+1);
-        var dd = pad(tripDate.getDate());
-        var isoDate = yyyy+'-'+mm+'-'+dd;
-        var idx = apiDates.indexOf(isoDate);
-        if(idx < 0) return;
-
-        var code = daily.weathercode[idx];
-        var tmax = Math.round(daily.temperature_2m_max[idx]);
-        var tmin = Math.round(daily.temperature_2m_min[idx]);
-        var ico = WX_CODE[code] || '🌡️';
-        var dow = DAYS_KO[tripDate.getDay()];
-
-        var el = document.createElement('div');
-        el.className = 'wx-day';
-        el.innerHTML = '<div class="wx-d">'+TRIP_DATES[di]+'('+dow+')</div>'
-          +'<div class="wx-ico">'+ico+'</div>'
-          +'<div class="wx-t">'+tmax+'°</div>'
-          +'<div class="wx-tl">'+tmin+'°</div>';
-        container.appendChild(el);
-      });
-
-      // sunrise/sunset for first day of this loc
-      var firstDi = loc.days[0];
-      var fd = new Date(tripStart); fd.setDate(fd.getDate()+firstDi);
-      var fdIso = fd.getFullYear()+'-'+pad(fd.getMonth()+1)+'-'+pad(fd.getDate());
-      var fdIdx = apiDates.indexOf(fdIso);
-      if(fdIdx >= 0){
-        sunEl.innerHTML = '<span>🌅 일출 <b>'+fmtTime(daily.sunrise[fdIdx])+'</b></span>'
-          +'<span>🌇 일몰 <b>'+fmtTime(daily.sunset[fdIdx])+'</b></span>'
-          +'<span style="font-size:10px;margin-left:auto">현지시각(WITA)</span>';
-        sunEl.style.display = '';
-      }
-
-      document.getElementById('wxLoading').style.display = 'none';
-      container.style.display = 'flex';
+    fetch(url).then(function(r){return r.json();}).then(function(data){
+      wxCache[locKey]=data;
+      renderDayTabs(data);
+      renderHours(data,loc.days[0]);
+      document.getElementById('wxLoading').style.display='none';
+      document.getElementById('wxBody').style.display='';
     }).catch(function(){
-      document.getElementById('wxLoading').textContent = '날씨를 불러올 수 없어요 (인터넷 확인)';
+      document.getElementById('wxLoading').textContent='날씨를 불러올 수 없어요 (인터넷 확인)';
     });
   }
 
-  // Tab switching — no scroll jump
-  var currentLoc = 'sanur';
   renderWeather('sanur');
 
-  document.getElementById('dayNav').addEventListener('click', function(e){
-    var pill = e.target.closest('[data-day]');
+  // Tab switching
+  document.getElementById('dayNav').addEventListener('click',function(e){
+    var pill=e.target.closest('[data-day]');
     if(!pill) return;
-    var idx = parseInt(pill.dataset.day);
+    var idx=parseInt(pill.dataset.day);
 
-    document.querySelectorAll('.day-pill').forEach(function(p){ p.classList.remove('active'); });
+    document.querySelectorAll('.day-pill').forEach(function(p){p.classList.remove('active');});
     pill.classList.add('active');
-    document.querySelectorAll('section.day').forEach(function(s){ s.classList.remove('active'); });
+    document.querySelectorAll('section.day').forEach(function(s){s.classList.remove('active');});
     document.getElementById('day'+idx).classList.add('active');
 
-    // food section switch
-    var isSanur = idx <= 2;
-    document.getElementById('food-sanur').style.display = isSanur ? '' : 'none';
-    document.getElementById('food-jimbaran').style.display = isSanur ? 'none' : '';
+    var isSanur=idx<=2;
+    document.getElementById('food-sanur').style.display=isSanur?'':'none';
+    document.getElementById('food-jimbaran').style.display=isSanur?'none':'';
 
-    // weather switch
-    var newLoc = isSanur ? 'sanur' : 'jimbaran';
-    if(newLoc !== currentLoc){
-      currentLoc = newLoc;
-      document.getElementById('wxDays').style.display = 'none';
-      document.getElementById('wxSun').style.display = 'none';
-      document.getElementById('wxLoading').style.display = '';
-      document.getElementById('wxLoading').textContent = '잠시만요 ☁️';
+    var newLoc=isSanur?'sanur':'jimbaran';
+    if(newLoc!==currentLoc){
+      currentLoc=newLoc;
+      document.getElementById('wxBody').style.display='none';
+      document.getElementById('wxLoading').style.display='';
+      document.getElementById('wxLoading').textContent='잠시만요 ☁️';
       renderWeather(newLoc);
+    } else {
+      // same region, jump to that day's weather tab if available
+      var loc=LOCS[currentLoc];
+      if(loc.days.indexOf(idx)>=0 && wxCache[currentLoc]){
+        document.querySelectorAll('.wx-day-tab').forEach(function(b,i){
+          b.classList.toggle('active', loc.days[i]===idx);
+        });
+        renderHours(wxCache[currentLoc],idx);
+      }
     }
 
-    pill.scrollIntoView({block:'nearest', inline:'center'});
+    pill.scrollIntoView({block:'nearest',inline:'center'});
   });
 </script>
 </body>
