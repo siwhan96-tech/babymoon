@@ -36,7 +36,23 @@
   .pass-bottom b{ color:var(--ink); font-weight:600; }
 
   /* stubs */
-  .stub-row{ display:flex; gap:10px; margin-bottom:18px; }
+  <!-- weather widget styles -->
+  .wx-card{ background:var(--card); border-radius:16px; padding:14px 16px; margin-bottom:14px;
+    box-shadow:0 1px 2px rgba(39,32,26,.04); }
+  .wx-loc{ font-size:11px; font-weight:700; color:var(--accent); letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
+  .wx-days{ display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .wx-days::-webkit-scrollbar{ display:none; }
+  .wx-day{ flex:0 0 auto; text-align:center; background:var(--bg); border-radius:10px; padding:8px 10px; min-width:52px; }
+  .wx-day.today{ background:var(--accent-soft); }
+  .wx-day .wx-d{ font-size:10px; color:var(--ink-soft); font-weight:600; }
+  .wx-day .wx-ico{ font-size:20px; margin:4px 0 2px; line-height:1; }
+  .wx-day .wx-t{ font-size:12px; font-weight:700; color:var(--ink); }
+  .wx-day .wx-tl{ font-size:10.5px; color:var(--ink-soft); }
+  .wx-sun{ display:flex; gap:12px; margin-top:10px; font-size:11.5px; color:var(--ink-soft); }
+  .wx-sun span b{ color:var(--ink); font-weight:600; }
+  .wx-loading{ font-size:12px; color:var(--ink-soft); padding:8px 0; }
+
+
   .stub{ flex:1; background:var(--card); border-radius:14px; padding:13px 14px; border:1px solid var(--line); box-shadow:0 1px 2px rgba(39,32,26,.04); }
   .stub-label{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:700; display:flex; align-items:center; gap:5px; margin-bottom:6px; }
   .stub-title{ font-size:13px; font-weight:600; line-height:1.4; }
@@ -128,6 +144,14 @@
     </div>
   </div>
 
+  <!-- weather card -->
+  <div class="wx-card" id="wxCard">
+    <div class="wx-loc" id="wxLoc">날씨 불러오는 중…</div>
+    <div class="wx-loading" id="wxLoading">잠시만요 ☁️</div>
+    <div class="wx-days" id="wxDays" style="display:none"></div>
+    <div class="wx-sun" id="wxSun" style="display:none"></div>
+  </div>
+
   <!-- sticky day nav -->
   <div class="day-nav-wrap">
     <div class="day-nav" id="dayNav">
@@ -148,7 +172,7 @@
     <div class="hotel-badge">🏨 Bali Beach Hotel (사누르)</div>
     <div class="item"><div class="time mono">18:00</div><div class="icon">🛫</div><div class="body"><b>ICN 출국</b></div></div>
     <div class="item"><div class="time mono">23:50</div><div class="icon">🛬</div><div class="body"><b>DPS 도착</b><span>현지 시각 — 한국보다 1시간 느림</span></div></div>
-    <div class="item"><div class="time mono"></div><div class="icon">🚕</div><div class="body"><b>Bali Beach Hotel 체크인</b><span>공항에서 차로 약 35~45분, 늦은 도착이니 바로 휴식</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🚐</div><div class="body"><b>Klook 공항 픽업 → Bali Beach Hotel</b><span>사전 예약 완료 · 기사 대기 확인 후 탑승</span></div></div>
     <div class="item"><div class="time mono"></div><div class="icon">🌅</div><div class="body"><b>동혁 — 공항에서 바로 일출투어 출발</b><span>시환·현정은 호텔 직행 휴식</span></div></div>
   </section>
 
@@ -156,9 +180,10 @@
   <section class="day" id="day1">
     <div class="day-head"><h2>DAY 2 · 결혼식</h2><span class="wd mono">8.22 (토)</span></div>
     <div class="hotel-badge">🏨 Bali Beach Hotel (사누르)</div>
-    <div class="item"><div class="time mono">오전</div><div class="icon">😴</div><div class="body"><b>늦잠 · 호텔 조식</b><span>장거리 이동 다음날, 컨디션 회복 최우선</span></div></div>
-    <div class="item"><div class="time mono"></div><div class="icon">🏝️</div><div class="body"><b>시환·현정 — 아이콘발리</b><span>실내 쇼핑몰 · 에어컨 · 이동 부담 없음</span></div></div>
-    <div class="item"><div class="time mono">점심</div><div class="icon">🐟</div><div class="body"><b>Fisherman's Club 점심</b><span>시환·현정 · 사누르 해변가, 해산물 중심</span></div></div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">☕</div><div class="body"><b>호텔 조식 간단히</b></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏝️</div><div class="body"><b>아이콘발리 쇼핑</b></div></div>
+    <div class="item"><div class="time mono">점심</div><div class="icon">🍖</div><div class="body"><b>Naughty Nuri's Warung 점심</b><span>사누르점 · 숯불 폭립</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏨</div><div class="body"><b>숙소 복귀 · 휴식</b><span>결혼식 전 여유있게</span></div></div>
     <div class="item highlight"><div class="time mono">15:30</div><div class="icon">🚌</div><div class="body"><b>호텔 → 베뉴 셔틀 출발</b><span>Bali Beach Hotel 사누르 출발 · 시간 맞춰 탑승</span></div></div>
     <div class="item highlight"><div class="time mono">16:30</div><div class="icon">💍</div><div class="body"><b>결혼식 — Villa Puri Nirwana</b><span>4시반 시작</span></div></div>
     <div class="item"><div class="time mono"></div><div class="icon">🏛️</div><div class="body"><b>베뉴 1층 오픈 공간</b><span>현정 형수님 쉬실 때 활용</span></div></div>
@@ -172,11 +197,13 @@
   <section class="day" id="day2">
     <div class="day-head"><h2>DAY 3 · 스파 데이</h2><span class="wd mono">8.23 (일)</span></div>
     <div class="hotel-badge">🏨 Bali Beach Hotel (사누르)</div>
-    <div class="item"><div class="time mono">오전</div><div class="icon">☕</div><div class="body"><b>조식 같이</b></div></div>
-    <div class="item"><div class="time mono">11:00</div><div class="icon">💆</div><div class="body"><b>Koa Shala Spa — 90분 마사지</b><span>시환·현정 · 임산부 마사지 전문 스파 · 사누르</span></div></div>
-    <div class="item"><div class="time mono">12:30</div><div class="icon">🏠</div><div class="body"><b>스파 종료 · 호텔 복귀</b></div></div>
-    <div class="item"><div class="time mono">오후</div><div class="icon">🏊</div><div class="body"><b>호텔 수영장 · 휴식</b></div></div>
-    <div class="item"><div class="time mono">저녁</div><div class="icon">🍖</div><div class="body"><b>Lava Gastrobar & Grill — 셋이 함께</b><span>시환·현정·동혁 · 화산석 스테이크 · 사누르</span></div></div>
+    <div class="item"><div class="time mono">오전</div><div class="icon">☕</div><div class="body"><b>호텔 조식 간단히</b></div></div>
+    <div class="item"><div class="time mono">11:00</div><div class="icon">💆</div><div class="body"><b>Koa Shala Spa — 90분 마사지</b><span>시환·현정·동혁 · 임산부 마사지 전문 스파 · 사누르</span></div></div>
+    <div class="item"><div class="time mono">12:30</div><div class="icon">🍽️</div><div class="body"><b>Rue Bali 점심</b><span>사누르</span></div></div>
+    <div class="item"><div class="time mono">오후</div><div class="icon">🛍️</div><div class="body"><b>Deus Ex Machina 쇼핑</b><span>의류·서핑·카페 복합 공간 · 사누르</span></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏨</div><div class="body"><b>숙소 복귀</b></div></div>
+    <div class="item"><div class="time mono"></div><div class="icon">🏊</div><div class="body"><b>호텔 수영장 탐방</b><span>비치사이드 풀 4개</span></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🍽️</div><div class="body"><b>Lava Gastrobar & Grill 또는 호텔 레스토랑</b><span>시환·현정·동혁 · 그날 컨디션에 따라</span></div></div>
   </section>
 
   <!-- DAY 4 -->
@@ -198,7 +225,7 @@
     <div class="item"><div class="time mono"></div><div class="icon">💆</div><div class="body"><b>아야나 스파</b><span>임산부 트리트먼트 사전 예약 시 가능 여부 확인</span></div></div>
     <div class="item"><div class="time mono">12-15시</div><div class="icon">🌡️</div><div class="body"><b>실내 · 객실 휴식</b><span>낮 최고기온 구간</span></div></div>
     <div class="item"><div class="time mono">오후</div><div class="icon">🌅</div><div class="body"><b>루나 루프탑 바 & 풀</b><span>리조트 전체 조망 · 선베드에서 여유</span></div></div>
-    <div class="item"><div class="time mono">저녁</div><div class="icon">🍽️</div><div class="body"><b>리조트 내 레스토랑</b></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🍹</div><div class="body"><b>리조트 내 레스토랑 또는 아야나 락바</b><span>날씨 좋으면 락바 — 절벽 위 오션뷰 바. 일몰 전후 방문 추천</span></div></div>
   </section>
 
   <!-- DAY 6 -->
@@ -208,7 +235,7 @@
     <div class="item"><div class="time mono">오전</div><div class="icon">🏛️</div><div class="body"><b>SAKA 뮤지엄</b><span>리조트 내 도보 390m · 발리 문화·예술 전시 · 냉방 실내</span></div></div>
     <div class="item"><div class="time mono">점심</div><div class="icon">🍽️</div><div class="body"><b>리조트 내 점심</b></div></div>
     <div class="item"><div class="time mono">오후</div><div class="icon">🛍️</div><div class="body"><b>사마스타 라이프스타일 빌리지 (선택)</b><span>리조트에서 차로 약 10분 · 실내 쇼핑</span></div></div>
-    <div class="item"><div class="time mono">저녁</div><div class="icon">🌇</div><div class="body"><b>선셋 뷰 디너</b><span>리조트 셔틀 이용</span></div></div>
+    <div class="item"><div class="time mono">저녁</div><div class="icon">🍹</div><div class="body"><b>아야나 락바 또는 선셋 뷰 레스토랑</b><span>날씨 좋으면 락바 — 화요일에 못 갔으면 오늘 도전</span></div></div>
   </section>
 
   <!-- DAY 7 -->
@@ -242,140 +269,108 @@
   </div>
 
   <!-- food recs -->
-  <div class="sec-title"><h2>🍽️ 맛집 · 카페</h2><span class="cnt">15곳</span></div>
-
-  <!-- SANUR -->
-  <div class="cat-label">📍 사누르 — D1~D3 (Bali Beach Hotel 주변)</div>
-
-  <div class="food-card">
-    <div><div class="fc-name">Warung Mak Beng</div><div class="fc-note">사누르 터줏대감 현지 와룽. 생선구이 정식 하나만 팔고, 항상 줄 서는 맛집.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Warung+Mak+Beng+Sanur+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">COSTA - Beach Restaurant Sanur</div><div class="fc-note">사누르 해변 바로 앞 레스토랑. 시원한 오션뷰와 함께 식사 가능.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=COSTA+Beach+Restaurant+Sanur+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Lava Gastrobar & Grill</div><div class="fc-note">화산석 그릴 스테이크. 사누르에서 분위기·맛 둘 다 잡은 저녁 맛집.</div><span class="fc-area">사누르 · 저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Lava+Gastrobar+Grill+Sanur+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Kaluma Casual Dining & Bar</div><div class="fc-note">사누르 캐주얼 다이닝. 분위기 편하고 메뉴 다양해서 저녁 자유롭게 고르기 좋음.</div><span class="fc-area">사누르 · 저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kaluma+Casual+Dining+Bar+Sanur+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Fisherman's Club</div><div class="fc-note">사누르 해변가 클럽 레스토랑. 해산물 중심, 선셋 뷰 분위기 좋음.</div><span class="fc-area">사누르 · 저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Fishermans+Club+Sanur+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-
-  <!-- JIMBARAN -->
-  <div class="cat-label">📍 짐바란 — D4~D7 (아야나 세가라 주변)</div>
-
-  <div class="food-card">
-    <div><div class="fc-name">Menega Cafe</div><div class="fc-note">짐바란 베이 오션뷰 해산물. 발리니즈 전통 방식 조리, 가성비 좋고 재방문율 높음.</div><span class="fc-area">짐바란 · 저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Menega+Cafe+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">쿠카 레스토랑 (Cuca)</div><div class="fc-note">타파스 스타일 창작 요리, 짐바란 파인다이닝 대표. 셰프 테이스팅 메뉴·칵테일 유명. ★4.7</div><span class="fc-area">짐바란 · 저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Cuca+Restaurant+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Locca Sea House</div><div class="fc-note">짐바란 오션뷰 레스토랑. ★4.7 고평점, 분위기 좋은 저녁 코스로 추천.</div><span class="fc-area">짐바란 · 저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Locca+Sea+House+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">La Pasion</div><div class="fc-note">★4.7 고평점 레스토랑. 가격대 합리적(7.5~22.5만 루피아), 분위기 좋음.</div><span class="fc-area">짐바란 · 점심·저녁</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=La+Pasion+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Gourmet Garage</div><div class="fc-note">짐바란 고급 식재료 마켓 겸 레스토랑. 델리·간편식·카페도 되어서 가볍게 들르기 좋음.</div><span class="fc-area">짐바란 · 점심</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Gourmet+Garage+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Kubu Beach Club</div><div class="fc-note">아야나 리조트 내 쿠부 비치 클럽. 리조트 셔틀로 이동 가능, 이동 없이 편하게.</div><span class="fc-area">짐바란 · 리조트 내</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kubu+Beach+Club+Ayana+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">사이드워크 짐바란</div><div class="fc-note">아야나 근처 쇼핑몰. 안에 푸드코트·레스토랑 다수. 더울 때 실내에서 식사하기 좋음.</div><span class="fc-area">짐바란 · 쇼핑몰 식사</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Sidewalk+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+  <!-- 맛집 — 사누르 (D1~D3) -->
+  <div class="food-section" id="food-sanur">
+    <div class="sec-title"><h2>🍽️ 맛집 · 카페</h2><span class="cnt">사누르</span></div>
+    <div class="cat-label">🍖 고기 & 그릴</div>
+    <div class="food-card">
+      <div><div class="fc-name">Naughty Nuri's Warung</div><div class="fc-note">숯불 폭립 명가. 사누르점.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/place/Naughty+Nuri%E2%80%99s+Warung,+Sanur/@-8.687823,115.2583441,18z" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">Lava Gastrobar & Grill</div><div class="fc-note">화산석 그릴 스테이크. 사누르에서 분위기·맛 둘 다 잡은 저녁 맛집.</div><span class="fc-area">사누르 · 저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Lava+Gastrobar+Grill+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="cat-label">🐟 해산물</div>
+    <div class="food-card">
+      <div><div class="fc-name">Fisherman's Club</div><div class="fc-note">사누르 해변가 해산물 레스토랑. 저녁에만 해산물 운영.</div><span class="fc-area">사누르 · 저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Fishermans+Club+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">Warung Mak Beng</div><div class="fc-note">사누르 터줏대감 현지 와룽. 생선구이 정식 하나만 팔고, 항상 줄 서는 맛집.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Warung+Mak+Beng+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="cat-label">🍽️ 캐주얼 다이닝</div>
+    <div class="food-card">
+      <div><div class="fc-name">Rue Bali</div><div class="fc-note">사누르 인기 레스토랑.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Rue+Bali+Sanur" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">COSTA - Beach Restaurant</div><div class="fc-note">사누르 해변 바로 앞. 지중해·이탈리안 메뉴, 오션뷰.</div><span class="fc-area">사누르 · 점심·저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=COSTA+Beach+Restaurant+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">Kaluma Casual Dining & Bar</div><div class="fc-note">분위기 편하고 메뉴 다양. 저녁에 라이브 밴드 공연도 있음.</div><span class="fc-area">사누르 · 저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kaluma+Casual+Dining+Bar+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="cat-label">🛍️ 쇼핑</div>
+    <div class="food-card">
+      <div><div class="fc-name">아이콘발리</div><div class="fc-note">사누르 대형 쇼핑몰. 에어컨 실내, 브랜드·로컬숍 다수.</div><span class="fc-area">사누르</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=ICON+Bali+Sanur" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">Deus Ex Machina Sanur</div><div class="fc-note">사누르 해변 산책로 코너. 의류 아울렛 형태.</div><span class="fc-area">사누르</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Deus+Ex+Machina+Sanur+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
   </div>
 
-  <!-- UBUD (D3 tour) -->
-  <div class="cat-label">📍 우붓 — D3 (동혁이랑 투어 시)</div>
-  <div class="food-card">
-    <div><div class="fc-name">기안야르 야시장</div><div class="fc-note">★4.4 우붓 인근 현지 야시장. 저렴한 발리 길거리 음식 총집합. 저녁 투어 일정에 넣기 좋음.</div><span class="fc-area">우붓 · 야시장</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Gianyar+Night+Market+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">티스카페+수영장</div><div class="fc-note">★4.8 우붓 인근 뷰 카페+수영장 콤보. 논밭 뷰에서 수영·카페 동시에 즐길 수 있는 유명 스팟.</div><span class="fc-area">우붓 · 카페</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tis+Cafe+Ubud+Bali" target="_blank" rel="noopener">📍</a>
+  <!-- 맛집 — 짐바란 (D4~D8) -->
+  <div class="food-section" id="food-jimbaran" style="display:none">
+    <div class="sec-title"><h2>🍽️ 맛집 · 카페</h2><span class="cnt">짐바란</span></div>
+    <div class="cat-label">🦐 해산물</div>
+    <div class="food-card">
+      <div><div class="fc-name">Menega Cafe</div><div class="fc-note">짐바란 베이 오션뷰 해산물. 발리니즈 전통 방식 조리, 가성비 좋고 재방문율 높음.</div><span class="fc-area">짐바란 · 저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Menega+Cafe+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="cat-label">🍷 파인다이닝</div>
+    <div class="food-card">
+      <div><div class="fc-name">쿠카 레스토랑 (Cuca)</div><div class="fc-note">타파스 스타일 창작 요리, 짐바란 파인다이닝 대표. 셰프 테이스팅 메뉴·칵테일 유명. ★4.7</div><span class="fc-area">짐바란 · 저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Cuca+Restaurant+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">Locca Sea House</div><div class="fc-note">짐바란 오션뷰 레스토랑. ★4.7 고평점, 분위기 좋은 저녁 코스로 추천.</div><span class="fc-area">짐바란 · 저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Locca+Sea+House+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">La Pasion</div><div class="fc-note">★4.7 고평점 레스토랑. 가격대 합리적(7.5~22.5만 루피아), 분위기 좋음.</div><span class="fc-area">짐바란 · 점심·저녁</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=La+Pasion+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="cat-label">☕ 카페 & 마켓</div>
+    <div class="food-card">
+      <div><div class="fc-name">Gourmet Garage</div><div class="fc-note">고급 식재료 마켓 겸 레스토랑. 델리·간편식·카페도 되어서 가볍게 들르기 좋음.</div><span class="fc-area">짐바란 · 점심</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Gourmet+Garage+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="food-card">
+      <div><div class="fc-name">Kubu Beach Club</div><div class="fc-note">아야나 리조트 내 쿠부 비치 클럽. 리조트 셔틀로 이동 가능.</div><span class="fc-area">짐바란 · 리조트 내</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kubu+Beach+Club+Ayana+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
+    <div class="cat-label">🛍️ 쇼핑</div>
+    <div class="food-card">
+      <div><div class="fc-name">사이드워크 짐바란</div><div class="fc-note">아야나 근처 쇼핑몰. 안에 푸드코트·레스토랑 다수. 더울 때 실내에서 식사하기 좋음.</div><span class="fc-area">짐바란</span></div>
+      <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Sidewalk+Jimbaran+Bali" target="_blank" rel="noopener">📍</a>
+    </div>
   </div>
 
-  <!-- SIGHTSEEING -->
-  <div class="sec-title"><h2>🗺️ 투어 후보 스팟</h2><span class="cnt">형님 + 동혁 둘이</span></div>
-
-  <div class="cat-label">💧 폭포</div>
+  <!-- 투어 후보 -->
+  <div class="sec-title"><h2>🗺️ 투어 후보 스팟</h2></div>
+  <div class="cat-label">🛕 사원 & 자연</div>
   <div class="food-card">
-    <div><div class="fc-name">Tegenungan Waterfall</div><div class="fc-note">★4.4 (38,064) 우붓 근처 가장 접근 편한 대형 폭포. 주차장에서 가까워 이동 부담 없음.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tegenungan+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Kanto Lampo Waterfall</div><div class="fc-note">★4.3 (7,398) 독특한 암반 지형 위로 흐르는 폭포. 사진 명소로 유명, 접근 쉬운 편.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kanto+Lampo+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Tibumana Waterfall</div><div class="fc-note">★4.6 (3,028) 한적하고 깨끗한 폭포. 관광객이 적어 여유롭게 즐길 수 있음.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tibumana+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Ulu Petanu Waterfall</div><div class="fc-note">★4.6 (1,764) 숨겨진 폭포. 트레킹 코스 포함이라 체력 있을 때 도전.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Ulu+Petanu+Waterfall+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-
-  <div class="cat-label">🛕 사원 & 문화</div>
-  <div class="food-card">
-    <div><div class="fc-name">울루와뚜 사원</div><div class="fc-note">★4.6 (52,696) 절벽 위 힌두 사원. 일몰 시간대 케짝 댄스 공연이 유명. 저녁에 맞춰 가기 좋음.</div><span class="fc-area">울루와뚜</span></div>
+    <div><div class="fc-name">울루와뚜 사원</div><div class="fc-note">★4.6 절벽 위 힌두 사원. 일몰 시간대 케짝 댄스 공연 유명. 짐바란에서 가까워요.</div><span class="fc-area">울루와뚜</span></div>
     <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Uluwatu+Temple+Bali" target="_blank" rel="noopener">📍</a>
   </div>
   <div class="food-card">
-    <div><div class="fc-name">Pura Tirta Empul</div><div class="fc-note">힌두 성수 사원. 신성한 샘물 목욕 의식 체험 가능. 우붓 근교.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Pura+Tirta+Empul+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Penataran Agung Lempuyang Temple</div><div class="fc-note">★4.0 (12,614) 하늘의 문(Gates of Heaven) 포토스팟으로 유명. 이른 아침 방문 권장.</div><span class="fc-area">카랑아슴</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Lempuyang+Temple+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">Goa Gajah</div><div class="fc-note">코끼리 동굴 사원. 우붓 가는 길목에 있어 다른 스팟과 묶어서 방문하기 좋음.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Goa+Gajah+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-
-  <div class="cat-label">🌾 자연 & 뷰포인트</div>
-  <div class="food-card">
-    <div><div class="fc-name">뜨갈랑 계단식 논</div><div class="fc-note">발리 대표 포토스팟. 이른 오전 방문 시 사람 적고 빛도 좋음. 카페 많아 쉬어가기 좋음.</div><span class="fc-area">우붓</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tegalalang+Rice+Terrace+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">짬뿌한 릿지 워크</div><div class="fc-note">우붓 시내에서 도보 가능한 트레킹 코스. 논밭·정글 뷰. 이른 아침이 덜 더움.</div><span class="fc-area">우붓</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Campuhan+Ridge+Walk+Ubud+Bali" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">BALI SWING</div><div class="fc-note">★4.8 (2,206) 정글 뷰 그네 포토스팟. 우붓 근교, 뷰 좋음.</div><span class="fc-area">우붓 근교</span></div>
-    <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Bali+Swing+Ubud" target="_blank" rel="noopener">📍</a>
-  </div>
-  <div class="food-card">
-    <div><div class="fc-name">타나롯</div><div class="fc-note">바다 위 힌두 사원. 일몰 명소. 짐바란에서 차로 약 1시간, 해 질 녘에 맞춰 가면 최고.</div><span class="fc-area">타바난</span></div>
+    <div><div class="fc-name">타나롯</div><div class="fc-note">바다 위 힌두 사원. 일몰 명소. 짐바란에서 차로 약 1시간.</div><span class="fc-area">타바난</span></div>
     <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Tanah+Lot+Bali" target="_blank" rel="noopener">📍</a>
   </div>
 
-  <!-- HOSPITAL -->
+  <!-- 병원 -->
   <div class="sec-title"><h2>🏥 비상 연락 · 병원</h2></div>
   <div class="food-card">
     <div><div class="fc-name">RSIA Puri Bunda Denpasar</div><div class="fc-note">★4.8 산부인과 전문 병원. 임산부 관련 응급상황 시 1순위. 덴파사르 위치.</div><span class="fc-area">덴파사르</span></div>
     <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=RSIA+Puri+Bunda+Denpasar+Bali" target="_blank" rel="noopener">📍</a>
   </div>
   <div class="food-card">
-    <div><div class="fc-name">Kasih Ibu General Hospital</div><div class="fc-note">★4.5 덴파사르 종합병원. 24시간 응급 가능. 사누르·짐바란 모두에서 접근 가능.</div><span class="fc-area">덴파사르</span></div>
+    <div><div class="fc-name">Kasih Ibu General Hospital</div><div class="fc-note">★4.5 덴파사르 종합병원. 24시간 응급 가능.</div><span class="fc-area">덴파사르</span></div>
     <a class="map-link" href="https://www.google.com/maps/search/?api=1&query=Kasih+Ibu+General+Hospital+Denpasar+Bali" target="_blank" rel="noopener">📍</a>
   </div>
 
@@ -393,21 +388,123 @@
     else b.textContent='다녀왔어요';
   }catch(_){}
 
+  // ── 날씨 ──
+  var LOCS = {
+    sanur:    { name:'사누르 날씨', lat: -8.6877,  lon: 115.2613, days:[0,1,2,3] },   // D1~D4
+    jimbaran: { name:'짐바란 날씨', lat: -8.7832,  lon: 115.1602, days:[3,4,5,6,7] }  // D4~D8
+  };
+
+  var WX_CODE = {
+    0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+    45:'🌫️',48:'🌫️',
+    51:'🌦️',53:'🌦️',55:'🌧️',
+    61:'🌧️',63:'🌧️',65:'🌧️',
+    80:'🌦️',81:'🌧️',82:'🌧️',
+    95:'⛈️',96:'⛈️',99:'⛈️'
+  };
+
+  var DAYS_KO = ['일','월','화','수','목','금','토'];
+  var TRIP_DATES = ['8/21','8/22','8/23','8/24','8/25','8/26','8/27','8/28'];
+
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function fmtTime(iso){
+    if(!iso) return '--:--';
+    var d = new Date(iso);
+    return pad(d.getHours())+':'+pad(d.getMinutes());
+  }
+
+  function renderWeather(locKey){
+    var loc = LOCS[locKey];
+    document.getElementById('wxLoc').textContent = loc.name;
+    var url = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude='+loc.lat+'&longitude='+loc.lon
+      + '&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset'
+      + '&timezone=Asia%2FSingapore&forecast_days=16';
+
+    fetch(url).then(function(r){ return r.json(); }).then(function(data){
+      var daily = data.daily;
+      var container = document.getElementById('wxDays');
+      var sunEl = document.getElementById('wxSun');
+      container.innerHTML = '';
+
+      // find trip days in API response
+      var apiDates = daily.time; // ["2026-08-21", ...]
+      var tripStart = new Date(2026,7,21);
+
+      loc.days.forEach(function(di){
+        var tripDate = new Date(tripStart); tripDate.setDate(tripDate.getDate()+di);
+        var yyyy = tripDate.getFullYear();
+        var mm = pad(tripDate.getMonth()+1);
+        var dd = pad(tripDate.getDate());
+        var isoDate = yyyy+'-'+mm+'-'+dd;
+        var idx = apiDates.indexOf(isoDate);
+        if(idx < 0) return;
+
+        var code = daily.weathercode[idx];
+        var tmax = Math.round(daily.temperature_2m_max[idx]);
+        var tmin = Math.round(daily.temperature_2m_min[idx]);
+        var ico = WX_CODE[code] || '🌡️';
+        var dow = DAYS_KO[tripDate.getDay()];
+
+        var el = document.createElement('div');
+        el.className = 'wx-day';
+        el.innerHTML = '<div class="wx-d">'+TRIP_DATES[di]+'('+dow+')</div>'
+          +'<div class="wx-ico">'+ico+'</div>'
+          +'<div class="wx-t">'+tmax+'°</div>'
+          +'<div class="wx-tl">'+tmin+'°</div>';
+        container.appendChild(el);
+      });
+
+      // sunrise/sunset for first day of this loc
+      var firstDi = loc.days[0];
+      var fd = new Date(tripStart); fd.setDate(fd.getDate()+firstDi);
+      var fdIso = fd.getFullYear()+'-'+pad(fd.getMonth()+1)+'-'+pad(fd.getDate());
+      var fdIdx = apiDates.indexOf(fdIso);
+      if(fdIdx >= 0){
+        sunEl.innerHTML = '<span>🌅 일출 <b>'+fmtTime(daily.sunrise[fdIdx])+'</b></span>'
+          +'<span>🌇 일몰 <b>'+fmtTime(daily.sunset[fdIdx])+'</b></span>'
+          +'<span style="font-size:10px;margin-left:auto">현지시각(WITA)</span>';
+        sunEl.style.display = '';
+      }
+
+      document.getElementById('wxLoading').style.display = 'none';
+      container.style.display = 'flex';
+    }).catch(function(){
+      document.getElementById('wxLoading').textContent = '날씨를 불러올 수 없어요 (인터넷 확인)';
+    });
+  }
+
   // Tab switching — no scroll jump
+  var currentLoc = 'sanur';
+  renderWeather('sanur');
+
   document.getElementById('dayNav').addEventListener('click', function(e){
     var pill = e.target.closest('[data-day]');
     if(!pill) return;
-    var idx = pill.dataset.day;
+    var idx = parseInt(pill.dataset.day);
 
-    // update pills
     document.querySelectorAll('.day-pill').forEach(function(p){ p.classList.remove('active'); });
     pill.classList.add('active');
-
-    // update panels
     document.querySelectorAll('section.day').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('day'+idx).classList.add('active');
 
-    // scroll selected pill into view within nav (horizontal), not the page
+    // food section switch
+    var isSanur = idx <= 2;
+    document.getElementById('food-sanur').style.display = isSanur ? '' : 'none';
+    document.getElementById('food-jimbaran').style.display = isSanur ? 'none' : '';
+
+    // weather switch
+    var newLoc = isSanur ? 'sanur' : 'jimbaran';
+    if(newLoc !== currentLoc){
+      currentLoc = newLoc;
+      document.getElementById('wxDays').style.display = 'none';
+      document.getElementById('wxSun').style.display = 'none';
+      document.getElementById('wxLoading').style.display = '';
+      document.getElementById('wxLoading').textContent = '잠시만요 ☁️';
+      renderWeather(newLoc);
+    }
+
     pill.scrollIntoView({block:'nearest', inline:'center'});
   });
 </script>
